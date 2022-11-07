@@ -1,8 +1,6 @@
 <#
 
-Automated Microsoft Deployment Toolkit Installer
-Scripter: Rhys Jeffery
-Email: Rhys.jeffery@neweratech.com
+Automated AAD Kerberos decryption key Rollover
 Date: 8/11/2022
 
 Original:

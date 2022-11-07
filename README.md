@@ -30,7 +30,7 @@ View Orginial Below:
 	<Server>relay.n4l.co.nz</Server>
 	<From>noreply@example.school.nz</From>
 	<To>
-		<Email>schoolalerts@newerait.co.nz</Email>
+		<Email>alerts@example.school.nz</Email>
 		<Email>ict@example.school.nz</Email>
 	</To>
 </SMTP>
