@@ -1,0 +1,14 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+
+<AADKerberosRollover>
+	<CloudUsername>example@example.school.nz</CloudUsername>
+	<OnPremiseUsername>Example\ExampleUsername</OnPremiseUsername>
+<SMTP>
+	<Server>relay.n4l.co.nz</Server>
+	<From></From>
+	<To>
+		<Email>schoolalerts@newerait.co.nz</Email>
+		<Email>ict@example.school.nz</Email>
+	</To>
+</SMTP>
+</AADKerberosRollover>
