@@ -7,6 +7,9 @@ View Orginial Below:
 ## What does this do?
 * Automates the rollover of Kerberos decyption keys for Azure AD Seamless SSO / Passthrough Authencation
 
+## Setup Instructions
+https://neweranz.itglue.com/5444376/docs/11345575
+
 ## Features
 * Simple to configure via XML
 * Provides logging and email notifications on failure
