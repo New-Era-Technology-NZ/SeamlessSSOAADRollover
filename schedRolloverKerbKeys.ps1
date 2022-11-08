@@ -26,10 +26,10 @@ $LogFile = "$logPath\$(get-date -Format dd-MM-yy)-Error.log"
 if(!(Test-Path $logPath)){New-Item -Path $logPath -ItemType Directory}
 
 Function Log-ToFile {
-    param($Message,$LogFile)
+    param([Parameter(ValueFromPipeline)]$Message,$LogFile)
 
    $Message | Out-File -FilePath "$logFile" -Append
-   Write-Host "" | Out-File -FilePath "$logFile" -Append
+   Write-Output "" | Out-File -FilePath "$logFile" -Append
 }
 
 # Email Notification
@@ -39,17 +39,15 @@ Function Send-Mail{
     try{
         Send-MailMessage -From $MailFrom -To $MailTo -Subject 'Failed: AAD Kerberos decryption key Rollover' -SmtpServer $Server -Attachments $Log -Body $Body -Priority High
     }Catch{
-        $Error = $_
-        $StackTrace = $_.ScriptStackTrace
-        $ErrorDetails = $_.ErrorDetails
-        $Exception = $_.Exception
 
-        Write-Host "Failed: Sending email Notification" | LogToFile -LogFile $LogFile
-        Write-Host "See below for error, stacktrace, error details and exception" | LogToFile -LogFile $LogFile
-        $Error | LogToFile -LogFile $LogFile
-        $StackTrace | LogToFile -LogFile $LogFile
-        $ErrorDetails | LogToFile -LogFile $LogFile
-        $Exception | LogToFile -LogFile $LogFile
+
+        Write-Output "Failed: Sending email Notification" | Log-ToFile -LogFile $LogFile
+        Write-Output "See below for error, stacktrace, error details and exception" | Log-ToFile -LogFile $LogFile
+        Write-Output $_ | Log-ToFile -LogFile $LogFile
+        Write-Output $_.ScriptStackTrace | Log-ToFile -LogFile $LogFile
+        Write-Output $_.Exception | Log-ToFile -LogFile $LogFile
+        Write-Output $_.ErrorDetails | Log-ToFile -LogFile $LogFile
+        Write-Output $_.Exception.InnerException | Log-ToFile -LogFile $LogFile
     }
 }
 
@@ -58,26 +56,25 @@ try{
     $CloudCred = New-Object System.Management.Automation.PsCredential($CloudUser,$CloudEncrypted)
     $OnpremCred = New-Object System.Management.Automation.PsCredential($OnpremUser,$OnpremEncrypted)
 }catch{
-    $Error = $_
-    $StackTrace = $_.ScriptStackTrace
-    $ErrorDetails = $_.ErrorDetails
-    $Exception = $_.Exception
 
-    Write-Host "Failed: Sending email Notification" | LogToFile -LogFile $LogFile
-    Write-Host "See below for error, stacktrace, error details and exception" | LogToFile -LogFile $LogFile
-    $Error | LogToFile -LogFile $LogFile
-    $StackTrace | LogToFile -LogFile $LogFile
-    $ErrorDetails | LogToFile -LogFile $LogFile
-    $Exception | LogToFile -LogFile $LogFile
+
+    Write-Output "Failed: Sending email Notification" | Log-ToFile -LogFile $LogFile
+    Write-Output "See below for error, stacktrace, error details and exception" | Log-ToFile -LogFile $LogFile
+    Write-Output $_ | Log-ToFile -LogFile $LogFile
+    Write-Output $_.ScriptStackTrace | Log-ToFile -LogFile $LogFile
+    Write-Output $_.Exception | Log-ToFile -LogFile $LogFile
+    Write-Output $_.ErrorDetails | Log-ToFile -LogFile $LogFile
+    Write-Output $_.Exception.InnerException | Log-ToFile -LogFile $LogFile
+
 
 }
 
  
 
 # Checks CloudCred and OnpremCred are not null, break out of script if so
-if($CloudCred = $Null -or $OnpremCred -eq $Null){
+if($CloudCred -eq $Null -or $OnpremCred -eq $Null){
 
-    Write-Host "Failed: Missing Credentials" | LogToFile -LogFile $LogFile
+    Write-Output "Failed: Missing Credentials" | Log-ToFile -LogFile $LogFile
     
     ForEach($User in $UsersToEmail){
         Send-Mail -Server $SMTPServer -Log $LogFile -MailTo $User -MailFrom $MailFrom
@@ -89,23 +86,21 @@ if($CloudCred = $Null -or $OnpremCred -eq $Null){
 try{
     Import-Module 'C:\Program Files\Microsoft Azure Active Directory Connect\AzureADSSO.psd1'
     New-AzureADSSOAuthenticationContext -CloudCredentials $CloudCred
-    Update-AzureADSSOForest -OnPremCredentials $OnpremCred -PreserveCustomPermissionsOnDesktopSsoAccount
+    Update-AzureADSSOForest -OnPremCredentials $OnpremCred
 }catch{
 
-    $Error = $_
-    $StackTrace = $_.ScriptStackTrace
-    $ErrorDetails = $_.ErrorDetails
-    $Exception = $_.Exception
-
-    Write-Host "Failed: AAD Kerberos decryption key Rollover" | LogToFile -LogFile $LogFile
-    Write-Host "See below for error, stacktrace, error details and exception" | LogToFile -LogFile $LogFile
-    $Error | LogToFile -LogFile $LogFile
-    $StackTrace | LogToFile -LogFile $LogFile
-    $ErrorDetails | LogToFile -LogFile $LogFile
-    $Exception | LogToFile -LogFile $LogFile
+    Write-Output "Failed: AAD Kerberos decryption key Rollover" | Log-ToFile -LogFile $LogFile
+    Write-Output "See below for error, stacktrace, error details and exception" | Log-ToFile -LogFile $LogFile
+    Write-Output $_ | Log-ToFile -LogFile $LogFile
+    Write-Output $_.ScriptStackTrace | Log-ToFile -LogFile $LogFile
+    Write-Output $_.Exception | Log-ToFile -LogFile $LogFile
+    Write-Output $_.ErrorDetails | Log-ToFile -LogFile $LogFile
+    Write-Output $_.Exception.InnerException | Log-ToFile -LogFile $LogFile
     
     ForEach($User in $UsersToEmail){
         Send-Mail -Server $SMTPServer -Log $LogFile -MailTo $User -MailFrom $MailFrom
     }
 }
  
+ # Line Seperation for logging
+ If(Test-Path -Path $LogFile){Write-Output "##########" | Out-File -FilePath "$logFile" -Append}
